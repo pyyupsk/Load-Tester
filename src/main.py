@@ -44,7 +44,12 @@ async def create_proxy_connector(proxy_url):
     if not proxy_url:
         return None
     proxy_type = get_proxy_type(proxy_url)
-    return ProxyConnector(proxy_type=proxy_type, host=urlparse(proxy_url).hostname, port=urlparse(proxy_url).port, ssl=False)
+    return ProxyConnector(
+        proxy_type=proxy_type,
+        host=urlparse(proxy_url).hostname,
+        port=urlparse(proxy_url).port,
+        ssl=ssl.create_default_context()  # Use secure SSL context
+    )
 
 async def send_request(session, url, proxy=None, timeout=10, headers=None, method='GET', data=None):
     try:
@@ -58,6 +63,7 @@ async def send_request(session, url, proxy=None, timeout=10, headers=None, metho
     except asyncio.TimeoutError:
         return "Timeout", None
     except Exception as e:
+        logger.error(f"Request failed: {str(e)}")
         return f"Error: {str(e)}", None
 
 async def load_test(url, num_requests, concurrency, proxies, headers, method, data):
@@ -135,8 +141,12 @@ if __name__ == "__main__":
     headers = {}
     if args.headers:
         for header in args.headers:
-            key, value = header.split(':', 1)
-            headers[key.strip()] = value.strip()
+            key_value = header.split(':', 1)
+            if len(key_value) == 2:
+                key, value = key_value
+                headers[key.strip()] = value.strip()
+            else:
+                logger.warning(f"Invalid header format: {header}. Expected 'Key:Value'.")
 
     print(f"{Fore.CYAN}Starting load test...{Style.RESET_ALL}")
     print(f"{Fore.YELLOW}Target URL:{Style.RESET_ALL} {args.url}")

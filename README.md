@@ -1,6 +1,6 @@
 # Load Testing Tool 🚀
 
-[![Build Python Executable 🚀](https://github.com/pyyupsk/Load-Tester/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/pyyupsk/Load-Tester/actions/workflows/build.yml)
+[![Build Python Executable 🚀](https://github.com/pyyupsk/Load-Tester/actions/workflows/build.yml/badge.svg)](https://github.com/pyyupsk/Load-Tester/actions/workflows/build.yml)
 
 Welcome to the **Load Testing Tool** repository! This tool is designed to help you **perform stress tests** on web servers, allowing you to evaluate their capacity to handle varying levels of traffic. While it offers valuable performance metrics, it is essential to use this tool carefully and responsibly.
 

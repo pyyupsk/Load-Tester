@@ -1,17 +1,20 @@
-import aiohttp
+# Standard library imports
+import argparse
 import asyncio
-import time
-import ssl
-from aiohttp_socks import ProxyType, ProxyConnector
-from urllib.parse import urlparse
 import logging
 import random
-import argparse
-from concurrent.futures import ThreadPoolExecutor
-from tqdm import tqdm
-import aiofiles
-from colorama import init, Fore, Style
+import ssl
 import statistics
+import time
+from concurrent.futures import ThreadPoolExecutor
+from urllib.parse import urlparse
+
+# Third-party imports
+import aiofiles
+import aiohttp
+from aiohttp_socks import ProxyConnector, ProxyType
+from colorama import Fore, Style, init
+from tqdm import tqdm
 
 init(autoreset=True)
 

@@ -20,10 +20,10 @@ async def load_proxies(file_path):
             return [line.strip() for line in await file.readlines() if line.strip()]
     except FileNotFoundError:
         logger.error(f"{Fore.RED}Proxy file {file_path} not found.{Style.RESET_ALL}")
-        return []
+        return None
     except Exception as e:
         logger.error(f"{Fore.RED}Error reading proxy file: {str(e)}{Style.RESET_ALL}")
-        return []
+        return None
 
 
 def get_proxy_type(proxy_url):
@@ -50,17 +50,17 @@ async def create_proxy_connector(proxy_url):
     )
 
 
-async def send_request(session, url, proxy=None, timeout=10, headers=None, method='GET', data=None):
+async def send_request(url, proxy=None, headers=None, method='GET', data=None):
     try:
         connector = await create_proxy_connector(proxy)
         async with ClientSession(connector=connector, headers=headers) as proxy_session:
             start_time = time.time()
-            async with proxy_session.request(method, url, timeout=timeout, data=data) as response:
+            async with proxy_session.request(method, url, data=data) as response:
                 await response.text()  # Ensure the full response is received
                 elapsed_time = time.time() - start_time
                 return response.status, elapsed_time
     except asyncio.TimeoutError:
         return "Timeout", None
     except Exception as e:
-        logger.error(f"Request failed: {str(e)}")
+        # If error because something is wrong with the proxy, remove it from the list
         return f"Error: {str(e)}", None

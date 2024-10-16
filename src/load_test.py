@@ -1,11 +1,9 @@
 # Standard library imports
 import asyncio
 import random
-import ssl
 import statistics
 
 # Third-party imports
-from aiohttp import ClientSession, TCPConnector
 from colorama import Fore, Style
 from tqdm import tqdm
 
@@ -14,21 +12,18 @@ from proxy import load_proxies, send_request
 
 
 async def load_test(url, num_requests, concurrency, proxies, headers, method, data):
-    connector = TCPConnector(ssl=ssl.create_default_context(), limit=concurrency)
+    semaphore = asyncio.Semaphore(concurrency)
+    progress_bar = tqdm(total=num_requests, desc="Requests", unit="req")
 
-    async with ClientSession(connector=connector, trust_env=True) as session:
-        semaphore = asyncio.Semaphore(concurrency)
-        progress_bar = tqdm(total=num_requests, desc="Requests", unit="req")
+    async def bounded_send_request(url):
+        async with semaphore:
+            proxy = random.choice(proxies) if proxies else None
+            result = await send_request(url, proxy, headers=headers, method=method, data=data)
+            progress_bar.update(1)
+            return result
 
-        async def bounded_send_request(url):
-            async with semaphore:
-                proxy = random.choice(proxies) if proxies else None
-                result = await send_request(session, url, proxy, headers=headers, method=method, data=data)
-                progress_bar.update(1)
-                return result
-
-        tasks = [bounded_send_request(url) for _ in range(num_requests)]
-        results = await asyncio.gather(*tasks)
+    tasks = [bounded_send_request(url) for _ in range(num_requests)]
+    results = await asyncio.gather(*tasks)
 
     progress_bar.close()
 
@@ -68,7 +63,7 @@ async def load_test(url, num_requests, concurrency, proxies, headers, method, da
 
 
 async def run_load_test(url, num_requests, concurrency, proxy_file, headers, method, data):
-    proxies = await load_proxies(proxy_file) if proxy_file else []
+    proxies = await load_proxies(proxy_file) if proxy_file else None
     if not proxies and proxy_file:
         print(f"{Fore.YELLOW}Warning: No proxies loaded. Proceeding without proxy.{Style.RESET_ALL}")
     elif proxies:

@@ -1,6 +1,5 @@
 # Standard library imports
 import asyncio
-import logging
 import ssl
 import time
 from urllib.parse import urlparse
@@ -11,18 +10,16 @@ from aiohttp import ClientSession
 from aiohttp_socks import ProxyConnector, ProxyType
 from colorama import Fore, Style
 
-logger = logging.getLogger(__name__)
-
 
 async def load_proxies(file_path):
     try:
         async with aiofiles.open(file_path, mode='r') as file:
             return [line.strip() for line in await file.readlines() if line.strip()]
     except FileNotFoundError:
-        logger.error(f"{Fore.RED}Proxy file {file_path} not found.{Style.RESET_ALL}")
+        print(f"{Fore.RED}Proxy file {file_path} not found.{Style.RESET_ALL}")
         return None
     except Exception as e:
-        logger.error(f"{Fore.RED}Error reading proxy file: {str(e)}{Style.RESET_ALL}")
+        print(f"{Fore.RED}Error reading proxy file: {str(e)}{Style.RESET_ALL}")
         return None
 
 

@@ -24,7 +24,7 @@ async def load_proxies(file_path):
 
 
 def get_proxy_type(proxy_url):
-    scheme = urlparse(proxy_url).scheme.lower()
+    scheme = proxy_url.scheme.lower()
     if scheme == 'http':
         return ProxyType.HTTP
     elif scheme == 'socks4':
@@ -38,21 +38,22 @@ def get_proxy_type(proxy_url):
 async def create_proxy_connector(proxy_url):
     if not proxy_url:
         return None
+    parsed_url = urlparse(proxy_url)
     proxy_type = get_proxy_type(proxy_url)
     return ProxyConnector(
         proxy_type=proxy_type,
-        host=urlparse(proxy_url).hostname,
-        port=urlparse(proxy_url).port,
-        ssl=ssl.create_default_context()  # Use secure SSL context
+        host=parsed_url.hostname,
+        port=parsed_url.port,
+        ssl=ssl.create_default_context()
     )
 
 
 async def send_request(url, proxy=None, headers=None, method='GET', data=None):
     try:
         connector = await create_proxy_connector(proxy)
-        async with ClientSession(connector=connector, headers=headers) as proxy_session:
+        async with ClientSession(connector=connector, headers=headers) as session:
             start_time = time.time()
-            async with proxy_session.request(method, url, data=data) as response:
+            async with session.request(method, url, data=data) as response:
                 await response.text()  # Ensure the full response is received
                 elapsed_time = time.time() - start_time
                 return response.status, elapsed_time

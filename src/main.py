@@ -34,19 +34,6 @@ if __name__ == "__main__":
                 print(f"{Fore.RED}Invalid header format: {header}. Expected 'Key:Value'.{Style.RESET_ALL}")
 
     print(f"{Fore.CYAN}Starting load test...{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}Target URL:{Style.RESET_ALL} {args.url}")
-    print(f"{Fore.YELLOW}Number of requests:{Style.RESET_ALL} {args.num_requests}")
-    print(f"{Fore.YELLOW}Concurrency:{Style.RESET_ALL} {args.concurrency}")
-    print(f"{Fore.YELLOW}HTTP Method:{Style.RESET_ALL} {args.method}")
-    if args.proxy_file:
-        print(f"{Fore.YELLOW}Proxy file:{Style.RESET_ALL} {args.proxy_file}")
-    if headers:
-        print(f"{Fore.YELLOW}Custom headers:{Style.RESET_ALL}")
-        for key, value in headers.items():
-            print(f"  {key}: {value}")
-    if args.data:
-        print(f"{Fore.YELLOW}Request data:{Style.RESET_ALL} {args.data}")
-
     with ThreadPoolExecutor() as executor:
         future = executor.submit(
             asyncio.run,
